@@ -1,0 +1,71 @@
+*{
+    --cor-de-fundo: rgba(0, 0, 0, 1);
+    --cor-barra-feed: rgba(51,51,51, 1);
+}
+
+body {
+    background-color: var(--cor-de-fundo);
+    padding: 0px;
+    margin: 0px;
+}
+
+img.clima {
+    width: 45px;
+    margin-top: -3px;
+}
+
+img.img_feed {
+    width: 35px;
+    margin-top: -3px;
+}
+
+img.img_news_feed {
+    width: 15px;
+    margin-top: -3px;
+}
+
+div.col-rss {
+    width: 45px;
+}
+
+.marquee {
+    height: 50px;
+	overflow: hidden;
+	position: relative;
+
+}
+
+.marquee p {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	text-align: center;
+}
+
+#footer {
+    padding: 0px 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--cor-barra-feed);
+    line-height: 2;
+    color: #ffffff;
+    font-size: 30px;
+}
+
+
+@media (min-width: 1200px) and (max-width: 1621px) {
+
+    .marquee {
+        width: 76%;
+    }
+
+    .tempo {
+        width: 12%;
+    }
+
+    .horario {
+        width: 12%;
+    }
+}

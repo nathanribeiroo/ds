@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Signage</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+
+</head>
+<body>
+
+    <video id="playlist" width="100%">
+        <source id="source_playlist" src="">
+    </video>
+
+    <video id="playlist_programada" width="100%" style="display:none;">
+        <source id="source_programada" src="">
+    </video>
+
+<div id="footer">
+    <div class="row">
+        <div class="col-lg-10 col-md-8 col-sm-8 col-xs-4 marquee">
+            Carrengando...
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 tempo">
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 horario">
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/moment.js"></script>
+
+<!-- Plugin Weather -->
+
+<script type="text/javascript">
+
+var $video  = $('video'),
+    $video_playlist  = $('#playlist'),
+    $video_playlist_programada  = $('#playlist_programada'),
+    $source_playlist = $('#source_playlist'),
+    $source_playlist_programada = $('#source_programada'),
+    $window = $(window),
+    url = "http://<%= url %>",
+    video_programados = <%- JSON.stringify(playlist_horario) %>,
+    list_video = <%- JSON.stringify(playlist) %>,
+    ini = <%- JSON.stringify(ini) %>,
+    video_programado = "",
+    position_list = 0;
+
+$(window).resize(function(){
+   
+    var height = $window.height()-60;
+    $video.css('height', height);
+
+    var videoWidth = $video.width(),
+        windowWidth = $window.width(),
+        marginLeftAdjust = (windowWidth - videoWidth) / 2;
+
+    $video.css({
+        'height': height,
+        'marginLeft' : marginLeftAdjust
+    });
+
+}).resize();
+
+$(document).ready(function(){
+    rss();
+    clima();
+    horario();
+    playlist();
+    formata_videos_programados();
+    monitora_videos();
+    evento_end_programados();
+    setInterval("clima();", <%= sleep.clima %> * (60 * 1000));
+    setInterval("horario();", 1000);
+    setInterval("rss();", <%= sleep.feed %> * (60 * 1000));
+
+});
+
+var formata_videos_programados = function () {
+    var aux = [];
+
+    video_programados.forEach(function(video, index) {
+        aux[video.horario] = video.video;
+    });
+
+    video_programados = aux;
+
+}
+
+var monitora_videos = function () {
+    setInterval( function() {
+        var horario = moment().format("HH:mm:ss");
+        if( horario in video_programados){
+
+            video_programado = video_programados[horario];
+            var url_programado = `${url}${ini.paths.play_video}${video_programado}`;
+
+            $video_playlist.get(0).pause();
+            $video_playlist.hide();
+
+
+            play_video($video_playlist_programada, $source_playlist_programada, url_programado, extensao(url_programado));
+            $video_playlist_programada.show();
+
+        }
+
+    }, 1000);
+}
+
+var evento_end_programados = function() {
+
+    $video_playlist_programada.on('ended', function(evt){
+        
+        insere_file(video_programado);
+
+
+        $video_playlist.get(0).play();
+        $video_playlist.show();
+
+        $video_playlist_programada.hide();
+
+    });
+}
+
+var playlist = function () {
+    
+    play_video($video_playlist, $source_playlist, list_video[position_list], extensao(list_video[position_list]));
+
+
+    $video_playlist.on('ended', function(evt){
+        
+        insere_file(list_video[position_list].replace(/^.*[\\\/]/, ''));
+
+        position_list++;
+
+        if(position_list > (list_video.length - 1))
+            position_list = 0;
+
+        play_video($video_playlist, $source_playlist, list_video[position_list], extensao(list_video[position_list]));
+
+    });
+};
+
+var play_video = function ($element, $source, url, type) {
+
+    $source.attr("src", url);
+    //$source.attr("type", `video/${type}`);
+    $source.attr("type", `video/mp4`);
+    $element.get(0).load();
+    $element.get(0).play();
+}
+
+var extensao = function (url) {
+    return url.substr( (url.lastIndexOf('.') +1) );
+}
+
+var rss = function() {
+    $.ajax({
+        url: url + "/feed",
+        dataType: 'html',
+        success: function(dados) {
+
+            var dados = JSON.parse(dados), 
+                html = "<marquee class='rss'>";
+
+            dados.forEach(function (rss, index, arr) {
+                
+                rss.forEach(function (feeds, index, arr) {
+
+                    $.each(feeds, function(index, feed) {
+                        html += " <img class='img_news_feed' src='img/circular.png' alt=''> " + feed.title;
+                    });
+
+                });
+
+            }); 
+
+            html += "</marquee>";
+                        
+            $(".marquee").html(html);
+        }
+    });
+};
+
+var horario = function () {
+    $(".horario").html(moment().format("HH:mm:ss"));
+};
+
+var clima = function() {
+    $.ajax({
+        url: url + "/weather",
+        dataType: 'json',
+        success: function(dados) {
+            if(dados == "-1")
+                return;
+
+            dados = JSON.parse(dados);
+            var hora = moment().format("HH");
+            var img = dados.results.condition_code + ".png";
+
+            $(".tempo").html(`${dados.results.temp} º <img class="clima" src="img/weather/${img}" alt="">`);
+        }
+    });
+};
+
+var insere_file = function (nome_video) {
+
+    $.ajax({
+        method: "GET",
+        url: url + `/insere/${encodeURI(nome_video)}`,
+        //url: url + `insere/${encodeURI(nome_video.replace(/^.*\/|\.[^.]*$/g, ''))}`,
+        dataType: 'html',
+        success: function(dados) {
+           
+        }
+    });
+}
+
+
+</script>
+
+</body>
+</html>
