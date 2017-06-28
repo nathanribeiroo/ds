@@ -20,7 +20,7 @@ var lista = function (path, callback) {
         
     fs.readFile(path, 'utf8', function (err, playlist) {
 
-        if (err)
+        if (err || playlist == "")
             return callback(true, "");
         
         playlist = playlist.split(ini.delimiter_playlist);
@@ -70,6 +70,10 @@ var insere_videos = function (callback) {
     console.info("--> Inserindo novos vídeos da playlist no banco de dados..."); 
     lista(ini.paths.playlist, function (err, data) {
 
+        if(err) {
+            return callback(true);
+        }
+
         db.serialize(function() {
 
             var stmt = db.prepare("INSERT OR IGNORE INTO videos (video) VALUES (?)");
@@ -79,7 +83,7 @@ var insere_videos = function (callback) {
                 //.replace(/^.*\/|\.[^.]*$/g, '')
                 if((data.length - 1) == index){
                     stmt.finalize();
-                    callback();
+                    return callback(false);
                 }
             });
                 
@@ -91,6 +95,11 @@ var insere_horarios = function (callback) {
 
     console.info("--> Inserindo horários de execução dos vídeos no banco de dados...");
     lista(ini.paths.playlist_horario, function (err, data_horario) {
+        
+        if(err) {
+            return callback(true);
+        }
+
         db.serialize(function() {
             
             data_horario.forEach( function(video, index_video){
@@ -107,7 +116,7 @@ var insere_horarios = function (callback) {
                         db.run(`INSERT OR IGNORE INTO horario_exibicao (id_video, horario) VALUES (${row.id}, '${horario}')`);
 
                         if(((info_video.length - 1) == index_horario) && (data_horario.length - 1) == index_video){
-                            callback();
+                            return callback(false);
                         }
 
                     });
@@ -121,13 +130,21 @@ var insere_horarios = function (callback) {
 };
 
 cria_tabelas(() => {
-    console.info("--> Tabelas do banco de dados criadas com Sucesso");
+    console.info("--> [OK] Tabelas do banco de dados criadas com Sucesso");
 
-    insere_videos(() => {
-        console.info("--> Novos vídeos inseridos com Sucesso");
+    insere_videos((err) => {
 
-        insere_horarios(() => {
-            console.info("--> Horários de execução dos vídeos inseridos com Sucesso");  
+        if(err)
+            return console.info("--> [ERRO] Nenhum vídeo presente na playlist."); 
+
+        console.info("--> [OK] Novos vídeos inseridos com Sucesso");
+
+        insere_horarios((err) => {
+
+            if(err)
+                return console.info("--> [AVISO] Horários de execução dos vídeos não foram inseridos, porque a lista esta vazia."); 
+        
+            console.info("--> [OK] Horários de execução dos vídeos inseridos com Sucesso");  
         });
     });
 });
