@@ -18,11 +18,11 @@ module.exports = {
 
     paths: {
         database: "./config/db.sqlite",
-        videos: "/node/ds/app/public/videos/",
+        videos: "./app/public/videos/",
         play_video: "/videos/",
-        playlist: "/node/ds/app/public/videos/PLAYLIST",
-        ignore: "/node/ds/app/public/videos/IGNORE",
-        playlist_horario: "/node/ds/app/public/videos/PLAYLIST#HORARIO"
+        playlist: "./app/public/videos/PLAYLIST",
+        ignore: "./app/public/videos/IGNORE",
+        playlist_horario: "./app/public/videos/PLAYLIST#HORARIO"
     },
 
     delimiter_playlist: "\n",

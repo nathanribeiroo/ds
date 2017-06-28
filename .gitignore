@@ -58,7 +58,7 @@ typings/
 .env
 
 # files videos
-app/public/videos/
+# app/public/videos/
 
 # banco de dados
 config/db.sqlite
