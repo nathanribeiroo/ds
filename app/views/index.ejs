@@ -37,6 +37,8 @@
 
 <script type="text/javascript">
 
+console.log("%cStop!", "color: red; font-family: sans-serif; font-size: 4.5em; font-weight: bolder; text-shadow: #000 1px 1px;");
+
 var $video  = $('video'),
     $video_playlist  = $('#playlist'),
     $video_playlist_programada  = $('#playlist_programada'),
@@ -202,7 +204,7 @@ var clima = function() {
             var hora = moment().format("HH");
             var img = dados.results.condition_code + ".png";
 
-            $(".tempo").html(`${dados.results.temp} º <img class="clima" src="img/weather/${img}" alt="">`);
+            $(".tempo").html(`${dados.results.temp}&#8451 <img class="clima" src="img/weather/${img}" alt="">`);
         }
     });
 };
