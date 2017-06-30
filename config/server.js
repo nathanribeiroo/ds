@@ -12,9 +12,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 consign()
     .include('app/routes')
     .then('config/ini.js')
+    .then('config/rss.js')
+    .then('config/db.js')
     .then('app/models')
     .then('app/controllers')
-    .then('config/db.js')
     .into(app);
 
 module.exports = app;

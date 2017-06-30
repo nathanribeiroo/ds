@@ -20,7 +20,7 @@
 <div id="footer">
     <div class="row">
         <div class="col-lg-10 col-md-8 col-sm-8 col-xs-4 marquee">
-            Carrengando...
+            Carregando...
         </div>
         <div class="col-lg-1 col-md-2 col-sm-2 col-xs-4 tempo">
         </div>
@@ -37,7 +37,8 @@
 
 <script type="text/javascript">
 
-console.log("%cStop!", "color: red; font-family: sans-serif; font-size: 4.5em; font-weight: bolder; text-shadow: #000 1px 1px;");
+console.log("%cEspere!", "color: red; font-family: sans-serif; font-size: 4.5em; font-weight: bolder; text-shadow: #000 1px 1px;");
+console.log("%c\nEste é um recurso de navegador voltado para desenvolvedores.", "color: black; font-family: sans-serif; font-size: 2.0em;");
 
 var $video  = $('video'),
     $video_playlist  = $('#playlist'),
@@ -76,9 +77,10 @@ $(document).ready(function(){
     formata_videos_programados();
     monitora_videos();
     evento_end_programados();
+    error_video();
     setInterval("clima();", <%= sleep.clima %> * (60 * 1000));
     setInterval("horario();", 1000);
-    setInterval("rss();", <%= sleep.feed %> * (60 * 1000));
+    setInterval("rss();", 3.15 * (60 * 1000));
 
 });
 
@@ -91,6 +93,17 @@ var formata_videos_programados = function () {
 
     video_programados = aux;
 
+}
+
+var error_video = function () {
+    $source_playlist.on("error", function(err){
+        position_list++;
+
+        if(position_list > (list_video.length - 1))
+            position_list = 0;
+
+        play_video($video_playlist, $source_playlist, list_video[position_list], extensao(list_video[position_list]));
+    });
 }
 
 var monitora_videos = function () {
@@ -150,8 +163,7 @@ var playlist = function () {
 var play_video = function ($element, $source, url, type) {
 
     $source.attr("src", url);
-    //$source.attr("type", `video/${type}`);
-    $source.attr("type", `video/mp4`);
+    $source.attr("type", `video/${ini.type_video}`);
     $element.get(0).load();
     $element.get(0).play();
 }
@@ -165,20 +177,15 @@ var rss = function() {
         url: url + "/feed",
         dataType: 'html',
         success: function(dados) {
+            
+            if(dados == "")
+                return;
 
             var dados = JSON.parse(dados), 
                 html = "<marquee class='rss'>";
 
             dados.forEach(function (rss, index, arr) {
-                
-                rss.forEach(function (feeds, index, arr) {
-
-                    $.each(feeds, function(index, feed) {
-                        html += " <img class='img_news_feed' src='img/circular.png' alt=''> " + feed.title;
-                    });
-
-                });
-
+                html += " <img class='img_news_feed' src='img/circular.png' alt=''> " + rss.title;
             }); 
 
             html += "</marquee>";

@@ -62,3 +62,6 @@ typings/
 
 # banco de dados
 config/db.sqlite
+
+# feed 
+config/rss.json

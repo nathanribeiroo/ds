@@ -2,7 +2,7 @@ module.exports = {
 
     // porta servidor
     // sync_projeto -s1 -uroot -ppi -P22 -H192.168.0.164 -o /node/ds/ -d /usr/local/bin/ds/ -e .gitignore
-    porta: 3000,
+    porta: 3001,
 
     // clima tempo
     weather: {
@@ -11,7 +11,7 @@ module.exports = {
     },
 
     // minutos
-    sleep_feed: 5,
+    sleep_feed: 3,
 
     // minuto
     sleep_clima: 1,
@@ -22,14 +22,17 @@ module.exports = {
         play_video: "/videos/",
         playlist: "./app/public/videos/PLAYLIST",
         ignore: "./app/public/videos/IGNORE",
-        playlist_horario: "./app/public/videos/PLAYLIST#HORARIO"
+        playlist_horario: "./app/public/videos/PLAYLIST#HORARIO",
+        rss: "./config/rss.json"
     },
 
     delimiter_playlist: "\n",
 
+    type_video: "quicktime",
+
     hosts: [
-        "http://rss.home.uol.com.br/index.xml"
-        //"http://pox.globo.com/rss/g1/brasil/"
+        //"http://rss.home.uol.com.br/index.xml"
+        "http://pox.globo.com/rss/g1/brasil/"
         //"http://www.curitiba.pr.gov.br/include/handler/rss.ashx?feed=4",
         // "http://www.curitiba.pr.gov.br/include/handler/rss.ashx?feed=1"
     ]

@@ -51,11 +51,11 @@ module.exports.feed = function(application, req, res){
     rss.le_rss(function (erro, data){
 
         if(erro) {
-            console.log("erro");
+            return res.json();
         }
         
 
-        res.json(data);
+        return res.json(data.rss.channel.item);
     });
         
 }
